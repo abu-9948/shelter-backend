@@ -3,7 +3,7 @@ import sequelize from '../config/database.js'; // Ensure this points to your dat
 
 // Define the User model
 const User = sequelize.define('User', {
-  id: {
+  user_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,

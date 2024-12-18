@@ -7,13 +7,14 @@ import authenticateToken from '../middleware/auth.js';
 
 router.post('/register', register);
 router.post('/login', login);
-router.get('/api/users/:id', authenticateToken, getUserProfile);
 
-//router.get('/:id', authenticateToken, getUserProfile);
-router.put('/:id', authenticateToken, updateUserProfile);
-router.delete('/:id', authenticateToken, deleteUserProfile);
+
+router.get('/:userId', authenticateToken, getUserProfile);
+router.put('/:userId', authenticateToken, updateUserProfile);
+router.delete('/:userId', authenticateToken, deleteUserProfile);
 router.post('/logout',logout);
-router.post('/request-password-reset', requestPasswordReset);
+
+router.post('/request_password_reset', requestPasswordReset);
 router.post('/reset-password', resetPassword);
 router.post('/change-password', authenticateToken, changePassword);
 

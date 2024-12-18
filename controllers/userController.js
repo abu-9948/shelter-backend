@@ -96,10 +96,10 @@ export const logout = (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-// Get User Profile
+// Get User Profilu
 export const getUserProfile = async (req, res) => {
     const { userId } = req.params;
-  
+ 
     try {
       const user = await User.findOne({ where: { user_id: userId } });
   
@@ -108,7 +108,7 @@ export const getUserProfile = async (req, res) => {
       }
   
       return res.status(200).json({
-        id: user.user_id,
+        user_id: user.user_id,
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -144,7 +144,7 @@ export const updateUserProfile = async (req, res) => {
     return res.status(200).json({
       message: 'Profile updated successfully',
       user: {
-        id: user.user_id,
+        user_id: user.user_id,
         name: user.name,
         phone: user.phone,
       },
