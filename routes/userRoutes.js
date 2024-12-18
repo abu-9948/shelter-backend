@@ -7,7 +7,9 @@ import authenticateToken from '../middleware/auth.js';
 
 router.post('/register', register);
 router.post('/login', login);
-router.get('/:id', authenticateToken, getUserProfile);
+router.get('/api/users/:id', authenticateToken, getUserProfile);
+
+//router.get('/:id', authenticateToken, getUserProfile);
 router.put('/:id', authenticateToken, updateUserProfile);
 router.delete('/:id', authenticateToken, deleteUserProfile);
 router.post('/logout',logout);

@@ -14,6 +14,12 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: 'postgres',
     logging: false,  // Disable SQL logging (can be enabled for debugging)
+    pool: {
+      max: 15,         // Maximum number of connections in the pool
+      min: 0,         // Minimum number of connections in the pool
+      acquire: 30000, // Maximum time (in ms) to acquire a connection before throwing an error
+      idle: 10000     // Maximum time (in ms) a connection can be idle before being released
+    }
   }
 );
 
@@ -21,6 +27,8 @@ const sequelize = new Sequelize(
 sequelize.authenticate()
   .then(() => console.log('Database connected successfully'))
   .catch((err) => console.error('Database connection error:', err));
+
+  
 
 export default sequelize;
 
