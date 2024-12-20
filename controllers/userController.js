@@ -5,7 +5,7 @@ import User from '../models/user.js';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-
+import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 
 // Register User
 export const register = async (req, res) => {
@@ -25,8 +25,11 @@ export const register = async (req, res) => {
 
     const hashedPassword = await hash(password, 10);
 
+    const userId = uuidv4();
+
     // Create the new user using Sequelize
     const newUser = await User.create({
+      user_id: userId,
       name,
       email,
       password: hashedPassword,

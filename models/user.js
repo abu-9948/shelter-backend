@@ -4,9 +4,9 @@ import sequelize from '../config/database.js'; // Ensure this points to your dat
 // Define the User model
 const User = sequelize.define('User', {
   user_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     primaryKey: true,
-    autoIncrement: true,
+    unique: true,
   },
   name: {
     type: DataTypes.STRING,
