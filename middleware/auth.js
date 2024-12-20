@@ -24,6 +24,7 @@ const authenticateToken = (req, res, next) => {
   try {
     const decoded = verify(token, process.env.JWT_SECRET);
     req.user = decoded;   //The decoded payload (user information) is stored in req.user
+   
     next();               //called to proceed to the next middleware or route handler. 
   } catch (error) {
     return res.status(401).json({ message: 'Invalid or expired token.' });

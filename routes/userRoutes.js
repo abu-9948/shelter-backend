@@ -16,6 +16,6 @@ router.post('/logout',logout);
 
 router.post('/request_password_reset', requestPasswordReset);
 router.post('/reset-password', resetPassword);
-router.post('/change-password', authenticateToken, changePassword);
+router.post('/change_password', authenticateToken, changePassword);
 
 export default router;

@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/user.js';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 
 // Register User
@@ -179,6 +180,7 @@ export const deleteUserProfile = async (req, res) => {
 };
 
 // Generate and send password reset link
+// Generate and send password reset link
 export const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
@@ -188,32 +190,35 @@ export const requestPasswordReset = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Generate reset token (using crypto)
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = Date.now() + 3600000; // 1 hour expiry time
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour expiry
 
-    // Store reset token and expiry in the database (you may want to hash the token before saving it for security)
-    user.resetToken = resetToken;
+    // Hash the reset token before storing
+    const hashedToken = await bcrypt.hash(resetToken, 10);
+    user.resetToken = hashedToken;
     user.resetTokenExpiry = resetTokenExpiry;
+
     await user.save();
 
-    // Send reset email using Nodemailer
+    // Create the reset link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    // Send email using Mailgun SMTP
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.mailgun.org',
+      port: 587,
       auth: {
-        
-        user: process.env.EMAIL_USER, // your email here
-        pass: process.env.EMAIL_PASS, // your email password here
+        user: process.env.EMAIL_USER, // Your Mailgun SMTP username
+        pass: process.env.EMAIL_PASSWORD, // Your Mailgun SMTP password
       },
     });
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `Password Reset <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Password Reset Request',
-      text: `Click the link below to reset your password: \n\n${resetLink}`,
+      text: `Click the link below to reset your password:\n\n${resetLink}\n\nThis link is valid for 1 hour.`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -225,21 +230,34 @@ export const requestPasswordReset = async (req, res) => {
   }
 };
 
+
 // Reset password with the token
 export const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
 
   try {
-    const user = await User.findOne({ where: { resetToken: token } });
-    if (!user || user.resetTokenExpiry < Date.now()) {
+    // Find user where the reset token expiry is valid
+    const user = await User.findOne({
+      where: { resetTokenExpiry: { [Op.gt]: Date.now() } },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // Compare the provided token with the stored hashed token
+    const isTokenValid = await bcrypt.compare(token, user.resetToken);
+    if (!isTokenValid) {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
 
     // Hash the new password and update it
-    const hashedPassword = await hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.resetToken = null; // Clear the reset token
-    user.resetTokenExpiry = null; // Clear the expiry
+
+    // Clear reset token and expiry
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
 
     await user.save();
 
@@ -250,10 +268,12 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+
 // Change password (Logged-in User)
 export const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const { userId } = req.user; // Assuming the user ID is stored in the JWT payload
+  
 
   try {
     const user = await User.findOne({ where: { user_id: userId } });
