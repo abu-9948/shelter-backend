@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import sequelize from './config/database.js';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -19,7 +20,19 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(json());
 
+const allowedOrigins = ['http://localhost:8088', 'http://localhost:8080'];
 
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  })
+);
 // Routes
 app.use('/api/users', userRoutes);
 
