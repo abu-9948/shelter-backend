@@ -1,46 +1,68 @@
-import { hash, compare } from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { body, validationResult } from 'express-validator';
-import User from '../models/user.js';
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+import { hash } from 'bcrypt';
+import { validationResult } from 'express-validator';
+import User from '../models/user.js'; // Ensure that this path is correct
 import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
+import { compare } from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+
 
 // Register User
 export const register = async (req, res) => {
+  // Validate input
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ 
+      errors: errors.array(),
+      message: 'Validation errors occurred',
+     });
   }
 
   try {
     const { name, email, password, phone, role } = req.body;
+    const normalizedEmail = email.toLowerCase();
 
-    // Check if the user already exists
-    const existingUser = await User.findOne({ where: { email } });
+    // Check if the user already exists by the normalized email
+    const existingUser = await User.findOne({ where: { email: normalizedEmail } });
     if (existingUser) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
+    // Hash the password using bcrypt
     const hashedPassword = await hash(password, 10);
 
+    // Generate a UUID for the user
     const userId = uuidv4();
 
     // Create the new user using Sequelize
     const newUser = await User.create({
       user_id: userId,
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       phone,
       role,
     });
 
-    res.status(201).json({ message: 'User registered successfully', user: newUser });
+    // Respond with a success message and the newly created user
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        user_id: newUser.user_id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role
+      }
+    });
+
   } catch (error) {
+    // Handle any errors that occur during the registration process
     console.error(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: 'An error occurred during registration',
+      message: error.message,
+    });
   }
 };
 
@@ -53,16 +75,23 @@ export const login = async (req, res) => {
 
   try {
     const { email, password } = req.body;
+  
+    const normalizedEmail = email.toLowerCase();
+    
 
     // Find the user by email using Sequelize
-    const user = await User.findOne({ where: { email } });
-
+    const user = await User.findOne({ where: { email: normalizedEmail } });
+  
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
 
     // Compare the hashed password
+    console.log("pass is :" ,password);
+    console.log("user pass is :" ,user.password);
     const isMatch = await compare(password, user.password);
+    
+      
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -100,7 +129,7 @@ export const logout = (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-// Get User Profilu
+// Get User Profile
 export const getUserProfile = async (req, res) => {
     const { userId } = req.params;
  
@@ -183,7 +212,7 @@ export const deleteUserProfile = async (req, res) => {
 };
 
 // Generate and send password reset link
-// Generate and send password reset link
+
 export const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 

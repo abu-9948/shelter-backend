@@ -2,15 +2,14 @@ import express, { json } from 'express';
 import sequelize from './config/database.js';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import connectDB from './config/monDatabase.js';
 
 // Load environment variables from .env file
 dotenv.config();
 
-
-
 import userRoutes from './routes/userRoutes.js';
+import accommodationRoutes from './routes/accommodationRoutes.js';
 /*
-import shelterRoutes from './routes/shelterRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 */
@@ -35,9 +34,9 @@ app.use(
 );
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/accommodations', accommodationRoutes);
 
 /*
-app.use('/api/shelters', shelterRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reviews', reviewRoutes);
 */
@@ -48,7 +47,10 @@ sequelize.sync()
   .then(() => console.log('Database synced'))
   .catch(err => console.error('Database sync error:', err));
 
+  connectDB();
 // Server start
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
