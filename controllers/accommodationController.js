@@ -62,9 +62,22 @@ export const getAccommodations = async () => {
   return accommodations;
 };
 
+// Get Single Accommodation
+export const getAccommodationById = async (id) => {
+  try {
+    const accommodationDetails = await accommodation.findById(id);
+    
+    if (!accommodationDetails) {
+      throw new Error('Accommodation not found');
+    }
+
+    return accommodationDetails;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Get Accommodation by Name and Location and Flat Number if needed)
-
-
 export const getAccommodationByDetails = async (filter) => {
   try {
     const accommodations = await accommodation.find(filter);

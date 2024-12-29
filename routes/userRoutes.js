@@ -14,8 +14,8 @@ router.put('/:userId', authenticateToken, updateUserProfile);
 router.delete('/:userId', authenticateToken, deleteUserProfile);
 router.post('/logout',logout);
 
-router.post('/request_password_reset', requestPasswordReset);
+router.post('/request-password-reset', requestPasswordReset);
 router.post('/reset-password', resetPassword);
-router.post('/change_password', authenticateToken, changePassword);
+router.post('/change-password/:userId', authenticateToken, changePassword);
 
 export default router;

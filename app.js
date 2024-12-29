@@ -19,19 +19,11 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(json());
 
-const allowedOrigins = ['http://localhost:8088', 'http://localhost:8080'];
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-  })
-);
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/accommodations', accommodationRoutes);

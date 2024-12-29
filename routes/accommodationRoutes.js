@@ -7,6 +7,7 @@ import {
   getAccommodations,
   getAccommodationsByUser,
   getAccommodationByDetails,
+  getAccommodationById,
 } from '../controllers/accommodationController.js';
 
 const router = express.Router();
@@ -61,7 +62,7 @@ router.put('/update/:id', async (req, res) => {
 });
 
 // Route to get all accommodations
-router.get('/', async (_req, res) => {
+router.get('/get', async (_req, res) => {
   try {
     // Call the controller to get all accommodations
     const accommodations = await getAccommodations();
@@ -70,7 +71,6 @@ router.get('/', async (_req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.get('/search', async (req, res) => {
   const { name, location, flatNumber, companyName} = req.query;
@@ -108,6 +108,22 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+router.get('/room/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const accommodationDetails = await getAccommodationById(id);
+    res.status(200).json(accommodationDetails);
+  } catch (error) {
+    if (error.message === 'Accommodation not found') {
+      res.status(404).json({ error: 'Accommodation not found' });
+    } else if (error.message === 'Invalid accommodation ID format') {
+      res.status(400).json({ error: 'Invalid accommodation ID format' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
 
 
 export default router;
