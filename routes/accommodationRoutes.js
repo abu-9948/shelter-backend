@@ -16,13 +16,10 @@ const router = express.Router();
 router.post('/add/:userId', async (req, res) => {
   const { name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description } = req.body;
   const { userId } = req.params;
-  console.log("user id ", userId);
 
   try {
     // Call the controller to add accommodation
-    console.log("run");
     const userExists = await User.findOne({ where: { user_id: userId } });
-    console.log("user exitst", userExists);
     if (!userExists) {
 
       return res.status(404).json({ message: 'User not found' }); // Return error if user doesn't exist
@@ -73,16 +70,22 @@ router.get('/get', async (_req, res) => {
 });
 
 router.get('/search', async (req, res) => {
-  const { name, location, flatNumber, companyName} = req.query;
+  const { name, location, flatNumber, companyName } = req.query;
+  console.log({
+    "name: ": name,
+    "location: ": location,
+    "flatNumber: ": flatNumber,
+    "companyName: ": companyName
+  })
 
   try {
     // Build the filter object dynamically based on the provided query params
     let filter = {};
 
-    if (name) filter.name = name;
-    if (location) filter.location = location;
-    if (flatNumber) filter.flatNumber = flatNumber;
-    if (companyName) filter.companyName = companyName;
+    if (name) filter.name = name.toLowerCase();
+    if (location) filter.location = location.toLowerCase();
+    if (flatNumber) filter.flatNumber = flatNumber.toLowerCase();
+    if (companyName) filter.companyName = companyName.toLowerCase();
 
     // Call the controller to get accommodations based on the filter
     const accommodations = await getAccommodationByDetails(filter);
@@ -99,7 +102,6 @@ router.get('/search', async (req, res) => {
 
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
-  console.log("user id ", userId);
   try {
     const accommodations = await getAccommodationsByUser(userId);
     res.status(200).json(accommodations);

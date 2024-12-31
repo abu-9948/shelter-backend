@@ -133,7 +133,6 @@ export const logout = (req, res) => {
 // Get User Profile
 export const getUserProfile = async (req, res) => {
   const { userId } = req.params;
-  console.log("userId: ", userId)
  
     try {
       const user = await User.findOne({ where: { user_id: userId } });

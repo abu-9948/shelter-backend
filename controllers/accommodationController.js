@@ -80,7 +80,13 @@ export const getAccommodationById = async (id) => {
 // Get Accommodation by Name and Location and Flat Number if needed)
 export const getAccommodationByDetails = async (filter) => {
   try {
-    const accommodations = await accommodation.find(filter);
+
+    const regexFilter = Object.entries(filter).reduce((acc, [key, value]) => ({
+      ...acc,
+      [key]: { $regex: new RegExp(value, 'i') } // 'i' flag makes it case insensitive
+    }), {});
+
+    const accommodations = await accommodation.find(regexFilter);
 
     // If no accommodations are found, return an appropriate response
     if (accommodations.length === 0) {
