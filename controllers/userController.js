@@ -1,6 +1,6 @@
 import { hash } from 'bcrypt';
 import { validationResult } from 'express-validator';
-import User from '../models/user.js'; // Ensure that this path is correct
+import User from '../models/user.js'; 
 import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 import { compare } from 'bcrypt';
 import jwt from 'jsonwebtoken';

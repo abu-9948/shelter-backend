@@ -12,7 +12,7 @@ const connectDB = async () => {
     
     await connect(mongoURI, {
      
-      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+      serverSelectionTimeoutMS: 30000, 
     });
 
     console.log('MongoDB Atlas connected');

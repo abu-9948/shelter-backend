@@ -1,35 +1,64 @@
-import userId from '../models/user.js';
 import accommodation from '../models/accommodation.js';
 import checkAccommodationExists from '../utils/checkAccommodationExists.js';
+import upload from '../middleware/upload.js';
 
-// Add Accommodation
-export const addAccommodation = async (name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description,user_id) => {
-  // Check if the accommodation already exists
-  const exists = await checkAccommodationExists(name, location, flatNumber);
 
-  if (exists) {
-    throw new Error('Accommodation already exists.');
+// Updated Add Accommodation function
+export const addAccommodation = async (req, res) => {
+  console.log('Received request to add accommodation');
+  try {
+    // Use Multer middleware to handle multiple image uploads
+    upload.array('images', 10)(req, res, async (err) => { // 'images' is the field name
+      
+      if (err) {
+        return res.status(400).send({ error: err.message });
+      }
+
+      const {
+        name, location, price, rating, companyName, amenities, phone,
+        available_spaces, flatNumber, address, description, user_id
+      } = req.body;
+
+      // Get the uploaded image paths (Cloudinary URLs or local paths)
+      const imagePaths = req.files.map(file => file.path);
+
+      // Check if accommodation already exists
+      const exists = await checkAccommodationExists(name, location, flatNumber);
+      if (exists) {
+        return res.status(400).send({ error: 'Accommodation already exists.' });
+      }
+
+   
+
+      // Create a new accommodation entry
+      const newAccommodation = new accommodation({
+        name,
+        location,
+        price,
+        rating,
+        companyName,
+        amenities,
+        phone,
+        available_spaces,
+        flatNumber,
+        address,
+        description,
+        user_id,
+        images: imagePaths,  // Store the image URLs
+      });
+
+      // Save the new accommodation to the database
+      await newAccommodation.save();
+
+      // Send back the new accommodation data as a response
+      res.status(201).send(newAccommodation);
+    });
+  } catch (error) {
+    
+    res.status(500).send({ error: error.message });
   }
-
-  // Create a new accommodation entry
-  const newAccommodation = new accommodation({
-    name,
-    location,
-    price,
-    rating,
-    companyName,
-    amenities,
-    phone,
-    available_spaces,
-    flatNumber,
-    address,
-    description,
-    user_id,
-  });
-
-  await newAccommodation.save();
-  return newAccommodation;
 };
+
 
 // Remove Accommodation
 export const removeAccommodation = async (id) => {
@@ -109,3 +138,14 @@ export const getAccommodationsByUser = async (userId) => {
   }
 };
 
+
+
+export const uploadHandler = async (req, res) => {
+  const filePath = req.file.path; // using multer for file uploads
+  try {
+    const imageUrl = await uploadImageToCloudinary(filePath);
+    res.json({ imageUrl });
+  } catch (error) {
+    res.status(500).json({ error: 'Image upload failed' });
+  }
+};

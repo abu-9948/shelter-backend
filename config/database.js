@@ -25,8 +25,8 @@ const sequelize = new Sequelize(
 
 // Test connection
 sequelize.authenticate()
-  .then(() => console.log('Database connected successfully'))
-  .catch((err) => console.error('Database connection error:', err));
+  .then(() => console.log('Postgres Database connected successfully'))
+  .catch((err) => console.error('Postgres Database connection error:', err));
 
   
 

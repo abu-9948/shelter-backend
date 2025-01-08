@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/user.js';
+import upload from '../middleware/upload.js';
 import {
   addAccommodation,
   removeAccommodation,
@@ -13,9 +14,11 @@ import {
 const router = express.Router();
 
 // Route to add a new accommodation
-router.post('/add/:userId', async (req, res) => {
+router.post('/add/:userId',upload.array('images'), async (req, res) => {
   const { name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description } = req.body;
   const { userId } = req.params;
+  const image = req.file.path; // Cloudinary URL of the uploaded image
+ 
 
   try {
     // Call the controller to add accommodation
@@ -24,7 +27,7 @@ router.post('/add/:userId', async (req, res) => {
 
       return res.status(404).json({ message: 'User not found' }); // Return error if user doesn't exist
     }
-    const newAccommodation = await addAccommodation(name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description, userId);
+    const newAccommodation = await addAccommodation(name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description, userId,image);
     res.status(201).json(newAccommodation);  // Return the newly added accommodation
   } catch (err) {
     res.status(500).json({ error: err.message });
