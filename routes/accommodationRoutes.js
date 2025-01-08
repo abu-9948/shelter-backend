@@ -14,12 +14,9 @@ import {
 const router = express.Router();
 
 // Route to add a new accommodation
-router.post('/add/:userId',upload.array('images'), async (req, res) => {
-  const { name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description } = req.body;
+router.post('/add/:userId',upload.array('images',1), async (req, res) => {
+ console.log('hi');
   const { userId } = req.params;
-  const image = req.file.path; // Cloudinary URL of the uploaded image
- 
-
   try {
     // Call the controller to add accommodation
     const userExists = await User.findOne({ where: { user_id: userId } });
@@ -27,7 +24,7 @@ router.post('/add/:userId',upload.array('images'), async (req, res) => {
 
       return res.status(404).json({ message: 'User not found' }); // Return error if user doesn't exist
     }
-    const newAccommodation = await addAccommodation(name, location, price, rating, companyName, amenities, phone, available_spaces, flatNumber, address, description, userId,image);
+    const newAccommodation = await addAccommodation(req,res);  // Add the new accommodation
     res.status(201).json(newAccommodation);  // Return the newly added accommodation
   } catch (err) {
     res.status(500).json({ error: err.message });
