@@ -1,6 +1,7 @@
 import express from 'express';
 import User from '../models/user.js';
 import upload from '../middleware/upload.js';
+import { uploadImageToCloudinary } from '../utils/uploadToCloudinary.js';
 import {
   addAccommodation,
   removeAccommodation,
@@ -14,8 +15,8 @@ import {
 const router = express.Router();
 
 // Route to add a new accommodation
-router.post('/add/:userId',upload.array('images',1), async (req, res) => {
- console.log('hi');
+router.post('/add/:userId',upload.array('images',5), async (req, res) => {
+
   const { userId } = req.params;
   try {
     // Call the controller to add accommodation
@@ -24,12 +25,30 @@ router.post('/add/:userId',upload.array('images',1), async (req, res) => {
 
       return res.status(404).json({ message: 'User not found' }); // Return error if user doesn't exist
     }
-    const newAccommodation = await addAccommodation(req,res);  // Add the new accommodation
+     // Ensure that files were uploaded
+     if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+     
+       const images = [];
+   
+       // Upload each file to Cloudinary and push the URLs into the images array
+       for (const file of req.files) {
+         const cloudinaryUrl = await uploadImageToCloudinary(file.path);
+         images.push(cloudinaryUrl); // Push the Cloudinary URL
+       }
+
+
+       const newAccommodation = await addAccommodation(req,res);  // Add the new accommodation
+
+    
     res.status(201).json(newAccommodation);  // Return the newly added accommodation
   } catch (err) {
+    console.error('Error adding accommodation:', err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Route to remove an accommodation
 router.delete('/remove/:id', async (req, res) => {
