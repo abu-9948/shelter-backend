@@ -15,9 +15,9 @@ const accommodationSchema = new Schema(
     flatNumber: { type: String, required: true },
     roomType: { type: String ,required: true},
     user_id: { type: String, required: true },
-    images: [{ url: String, description: String }],
+    images: [String],
     
-  //user_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  
    
   },
   { timestamps: true }

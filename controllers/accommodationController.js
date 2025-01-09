@@ -9,10 +9,7 @@ export const addAccommodation = async (req, res) => {
       available_spaces, flatNumber, address, description, roomType
     } = req.body;
     const { userId } = req.params;
-    console.log(userId);
-    console.log('name is ', name);
-    console.log('location is', location);
-    console.log('price is ', price);
+   
     // Validate required fields
     if (!name || !location || !price || !userId) {
       return res.status(400).send({ error: 'Required fields are missing.' });
