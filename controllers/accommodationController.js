@@ -1,21 +1,38 @@
 import accommodation from '../models/accommodation.js';
 import checkAccommodationExists from '../utils/checkAccommodationExists.js';
-
+import { uploadImageToCloudinary } from '../utils/uploadToCloudinary.js';
 
 export const addAccommodation = async (req, res) => {
-  console.log('Received request to add accommodation');
 
   const { userId } = req.params;
 
   try {
     const {
       name, location, price, companyName, amenities, phone,
-      available_spaces, flatNumber, address, description, roomType,
+      available_spaces, flatNumber, address, description, roomType
     } = req.body;
+    const { userId } = req.params;
+    console.log(userId);
+    console.log('name is ', name);
+    console.log('location is', location);
+    console.log('price is ', price);
+    // Validate required fields
+    if (!name || !location || !price || !userId) {
+      return res.status(400).send({ error: 'Required fields are missing.' });
+    }
 
-    // Get the uploaded image paths (Cloudinary URLs)
-    const imagePaths = req.files[0].path;
-  console.log(imagePaths);
+    // Upload images to Cloudinary and gather their URLs
+    const imagePaths = [];
+    for (const file of req.files) {
+      try {
+        const imageUrl = await uploadImageToCloudinary(file.path);
+        imagePaths.push(imageUrl);
+      } catch (error) {
+        // Handle error in image upload
+        return res.status(500).send({ error: 'Error uploading images' });
+      }
+    }
+
 
     // Check if accommodation already exists
     const exists = await checkAccommodationExists(name, location, flatNumber);
@@ -50,6 +67,7 @@ export const addAccommodation = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
 
 
 // Remove Accommodation
@@ -87,7 +105,7 @@ export const getAccommodations = async () => {
 export const getAccommodationById = async (id) => {
   try {
     const accommodationDetails = await accommodation.findById(id);
-    
+
     if (!accommodationDetails) {
       throw new Error('Accommodation not found');
     }
@@ -131,13 +149,3 @@ export const getAccommodationsByUser = async (userId) => {
 };
 
 
-
-export const uploadHandler = async (req, res) => {
-  const filePath = req.file.path; // using multer for file uploads
-  try {
-    const imageUrl = await uploadImageToCloudinary(filePath);
-    res.json({ imageUrl });
-  } catch (error) {
-    res.status(500).json({ error: 'Image upload failed' });
-  }
-};
