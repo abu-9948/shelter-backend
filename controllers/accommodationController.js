@@ -1,6 +1,7 @@
 import accommodation from '../models/accommodation.js';
 import checkAccommodationExists from '../utils/checkAccommodationExists.js';
 import { uploadImageToCloudinary } from '../utils/uploadToCloudinary.js';
+import Favs from '../models/favs.js';
 
 export const addAccommodation = async (req, res) => {
   try {
@@ -142,4 +143,25 @@ export const getAccommodationsByUser = async (userId) => {
   }
 };
 
+export const getFavAccommodationsOfUser = async (userId) => {
+  try {
+    // Fetch all favorite accommodation IDs for the user from PostgreSQL
+    const favs = await Favs.findAll({
+      where: { user_id: userId },
+      attributes: ['accommodation_id'],
+    });
+
+    // Extract accommodation IDs from the favs
+    const accommodationIds = favs.map(fav => fav.accommodation_id);
+
+    // Fetch accommodation details from MongoDB using the extracted IDs
+    const accommodations = await accommodation.find({
+      _id: { $in: accommodationIds },
+    });
+
+    return accommodations;
+  } catch (error) {
+    throw new Error('Error fetching favorite accommodations');
+  }
+};
 

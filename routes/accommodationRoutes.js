@@ -10,8 +10,8 @@ import {
   getAccommodationsByUser,
   getAccommodationByDetails,
   getAccommodationById,
+  getFavAccommodationsOfUser,
 } from '../controllers/accommodationController.js';
-
 const router = express.Router();
 
 // Route to add a new accommodation
@@ -119,9 +119,11 @@ router.get('/search', async (req, res) => {
   }
 });
 
+
+// Route to get all accommodations by a user
 router.get('/by-user/:userId', async (req, res) => {
   const { userId } = req.params;
-  console.log("userId")
+
   try {
     const accommodations = await getAccommodationsByUser(userId);
     res.status(200).json(accommodations);
@@ -132,8 +134,6 @@ router.get('/by-user/:userId', async (req, res) => {
 
 router.get('/:accommodation_id', async (req, res) => {
   const { accommodation_id } = req.params;
-  console.log("accommodation_id: ", accommodation_id)
-
   try {
     const accommodationDetails = await getAccommodationById(accommodation_id);
     res.status(200).json(accommodationDetails);
@@ -145,6 +145,18 @@ router.get('/:accommodation_id', async (req, res) => {
     } else {
       res.status(500).json({ error: 'Internal server error' });
     }
+  }
+});
+
+// Route to get all favorite accommodations of a user
+router.get('/favs/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const accommodations = await getFavAccommodationsOfUser(userId);
+    res.status(200).json(accommodations);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

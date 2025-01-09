@@ -15,4 +15,5 @@ router.get('/get-review/:accommodation_id', getReviewsForAccommodation);
 router.put('/update-review/:accommodation_id', updateReviewForAccommodation);
 
 
+
 export default router;
