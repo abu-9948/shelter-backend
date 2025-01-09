@@ -3,9 +3,6 @@ import checkAccommodationExists from '../utils/checkAccommodationExists.js';
 import { uploadImageToCloudinary } from '../utils/uploadToCloudinary.js';
 
 export const addAccommodation = async (req, res) => {
-
-  const { userId } = req.params;
-
   try {
     const {
       name, location, price, companyName, amenities, phone,
