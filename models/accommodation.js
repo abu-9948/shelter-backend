@@ -7,7 +7,6 @@ const accommodationSchema = new Schema(
     address: { type: String },
     description: { type: String },
     price: { type: Number, required: true, min: 0 },
-    rating: { type: Number, required: true, min: 0, max: 5 },
     amenities: { type: [String], default: ['WiFi'] },
     available: { type: Boolean, default: true },
     companyName: { type: String },

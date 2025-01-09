@@ -32,12 +32,12 @@ router.post('/add/:userId',upload.array('images',1), async (req, res) => {
 });
 
 // Route to remove an accommodation
-router.delete('/remove/:id', async (req, res) => {
-  const { id } = req.params;
+router.delete('/remove/:accommodation_id', async (req, res) => {
+  const { accommodation_id } = req.params;
 
   try {
     // Call the controller to remove accommodation
-    const deletedAccommodation = await removeAccommodation(id);
+    const deletedAccommodation = await removeAccommodation(accommodation_id);
     res.status(200).json("Deleted Successfully");  // Return the deleted accommodation details
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -45,13 +45,13 @@ router.delete('/remove/:id', async (req, res) => {
 });
 
 // Route to update an accommodation
-router.put('/update/:id', async (req, res) => {
-  const { id } = req.params;
+router.put('/update/:accommodation_id', async (req, res) => {
+  const { accommodation_id } = req.params;
   const updates = req.body;
 
   try {
     // Call the controller to update accommodation
-    const updatedAccommodation = await updateAccommodation(id, updates);
+    const updatedAccommodation = await updateAccommodation(accommodation_id, updates);
     res.status(200).json(updatedAccommodation);  // Return the updated accommodation details
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -100,8 +100,9 @@ router.get('/search', async (req, res) => {
   }
 });
 
-router.get('/:userId', async (req, res) => {
+router.get('/by-user/:userId', async (req, res) => {
   const { userId } = req.params;
+  console.log("userId")
   try {
     const accommodations = await getAccommodationsByUser(userId);
     res.status(200).json(accommodations);
@@ -110,11 +111,12 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-router.get('/room/:id', async (req, res) => {
-  const { id } = req.params;
+router.get('/:accommodation_id', async (req, res) => {
+  const { accommodation_id } = req.params;
+  console.log("accommodation_id: ", accommodation_id)
 
   try {
-    const accommodationDetails = await getAccommodationById(id);
+    const accommodationDetails = await getAccommodationById(accommodation_id);
     res.status(200).json(accommodationDetails);
   } catch (error) {
     if (error.message === 'Accommodation not found') {

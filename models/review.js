@@ -17,6 +17,10 @@ const Review = sequelize.define('Review', {
       key: 'user_id',
     },
   },
+  user_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   
   rating: {
     type: DataTypes.DECIMAL(3, 1),

@@ -11,6 +11,7 @@ export const addReview = async (req, res) => {
   
     const {
       user_id,
+      user_name,
       rating,
       review_text,
       maintenance_rating,
@@ -38,6 +39,7 @@ export const addReview = async (req, res) => {
     const newReview = await Review.create({
       accommodation_id,
       user_id,
+      user_name,
       rating,
       review_text,
       maintenance_rating,
@@ -58,6 +60,7 @@ export const addReview = async (req, res) => {
 export const getReviewsForAccommodation = async (req, res) => {
   try {
     const { accommodation_id } = req.params;
+    // console.log("accommodation_id: ", accommodation_id)
 
     // Fetch reviews for the accommodation
     const reviews = await Review.findAll({
@@ -113,14 +116,12 @@ export const updateReviewForAccommodation = async (req, res) => {
      }
     // Add the review to the database
     const updateReview = await existingReview.update({
-   
       rating,
       review_text,
       maintenance_rating,
       amenities_rating,
       value_for_money_rating,
       stay_duration,
-    
     });
 
     res.status(201).json(updateReview);

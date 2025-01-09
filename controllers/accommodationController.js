@@ -5,10 +5,12 @@ import checkAccommodationExists from '../utils/checkAccommodationExists.js';
 export const addAccommodation = async (req, res) => {
   console.log('Received request to add accommodation');
 
+  const { userId } = req.params;
+
   try {
     const {
-      name, location, price, rating, companyName, amenities, phone,
-      available_spaces, flatNumber, address, description,roomType, user_id,
+      name, location, price, companyName, amenities, phone,
+      available_spaces, flatNumber, address, description, roomType,
     } = req.body;
 
     // Get the uploaded image paths (Cloudinary URLs)
@@ -26,7 +28,6 @@ export const addAccommodation = async (req, res) => {
       name,
       location,
       price,
-      rating,
       companyName,
       amenities,
       phone,
@@ -35,7 +36,7 @@ export const addAccommodation = async (req, res) => {
       address,
       description,
       roomType,
-      user_id,
+      user_id: userId,
       images: imagePaths,  // Store the image URLs
     });
 

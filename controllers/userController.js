@@ -22,7 +22,7 @@ export const register = async (req, res) => {
   }
 
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone } = req.body;
     const normalizedEmail = email.toLowerCase();
 
     // Check if the user already exists by the normalized email
@@ -44,7 +44,6 @@ export const register = async (req, res) => {
       email: normalizedEmail,
       password: hashedPassword,
       phone,
-      role,
     });
 
     // Respond with a success message and the newly created user
@@ -55,7 +54,6 @@ export const register = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         phone: newUser.phone,
-        role: newUser.role
       }
     });
 
@@ -99,7 +97,7 @@ export const login = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.user_id, role: user.role },
+      { id: user.user_id, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -146,7 +144,6 @@ export const getUserProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role,
       });
     } catch (error) {
       console.error(error);
