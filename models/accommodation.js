@@ -14,11 +14,9 @@ const accommodationSchema = new Schema(
     available_spaces: { type: Number, required: true, min: 1 },
     flatNumber: { type: String, required: true },
     roomType: { type: String ,required: true},
+    OccupancyType: { type: String ,required: true},
     user_id: { type: String, required: true },
     images: [String],
-    
-  
-   
   },
   { timestamps: true }
 );
