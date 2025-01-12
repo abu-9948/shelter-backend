@@ -7,7 +7,7 @@ export const addAccommodation = async (req, res) => {
   try {
     const {
       name, location, price, companyName, amenities, phone,
-      available_spaces, flatNumber, address, description, roomType, OccupancyType
+      available_spaces, flatNumber, address, description, roomType, occupancyType
     } = req.body;
     const { userId } = req.params;
    
@@ -48,7 +48,7 @@ export const addAccommodation = async (req, res) => {
       address,
       description,
       roomType,
-      OccupancyType,
+      occupancyType,
       user_id: userId,
       images: imagePaths,  // Store the image URLs
     });
