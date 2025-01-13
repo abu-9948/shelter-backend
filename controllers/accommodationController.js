@@ -166,3 +166,57 @@ export const getFavAccommodationsOfUser = async (userId) => {
   }
 };
 
+export const addToFavorites = async (userId, accommodationId) => {
+  try {
+    // Check if the accommodation exists in MongoDB
+    const accommodationExists = await accommodation.findById(accommodationId);
+    if (!accommodationExists) {
+      throw new Error('Accommodation not found');
+    }
+
+    // Check if the favorite already exists
+    const existingFav = await Favs.findOne({
+      where: {
+        user_id: userId,
+        accommodation_id: accommodationId
+      }
+    });
+
+    if (existingFav) {
+      throw new Error('Accommodation already in favorites');
+    }
+
+    // Create new favorite in PostgreSQL
+    const newFav = await Favs.create({
+      user_id: userId,
+      accommodation_id: accommodationId
+    });
+
+    return {
+      message: 'Added to favorites successfully',
+      favorite: newFav
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Controller function for removing from favorites
+export const removeFromFavorites = async (userId, accommodationId) => {
+  try {
+    const deleted = await Favs.destroy({
+      where: {
+        user_id: userId,
+        accommodation_id: accommodationId
+      }
+    });
+
+    if (!deleted) {
+      throw new Error('Favorite not found');
+    }
+
+    return true;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};

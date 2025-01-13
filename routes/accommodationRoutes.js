@@ -11,6 +11,8 @@ import {
   getAccommodationByDetails,
   getAccommodationById,
   getFavAccommodationsOfUser,
+  removeFromFavorites,
+  addToFavorites,
 } from '../controllers/accommodationController.js';
 const router = express.Router();
 
@@ -160,5 +162,32 @@ router.get('/favs/:userId', async (req, res) => {
   }
 });
 
+// Route to add a favorite accommodation for a user
+router.post('/favs/add/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { accommodationId } = req.body;
+
+  try {
+    const newFav = await addToFavorites(userId, accommodationId);
+    res.status(201).json(newFav);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Route to remove a favorite accommodation for a user
+router.delete('/favs/remove/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { accommodationId } = req.body;
+  console.log(accommodationId)
+
+  try {
+    await removeFromFavorites(userId, accommodationId);
+    res.status(200).json({ message: 'Removed from favorites successfully' });
+  } catch (err) {
+    console.log(err.message)
+    res.status(500).json({ error: err.message });
+  }
+});
 
 export default router;

@@ -3,6 +3,11 @@ import sequelize from '../config/database.js'; // Ensure this points to your dat
 
 // Define the User model
 const Favs = sequelize.define('Favs', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   user_id: {
     type: DataTypes.STRING,
     primaryKey: true,
