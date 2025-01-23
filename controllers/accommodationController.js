@@ -78,10 +78,19 @@ export const removeAccommodation = async (id) => {
   return deletedAccommodation;
 };
 
-// Update Accommodation
-export const updateAccommodation = async (id, updates) => {
-  // Update the accommodation based on the given id
-  const updatedAccommodation = await accommodation.findByIdAndUpdate(id, updates, { new: true });
+//update Accommodation
+export const updateAccommodation = async (accommodation_id, updates) => {
+  // Validate the accommodation_id and updates
+  if (!accommodation_id) {
+    throw new Error('Accommodation ID is required.');
+  }
+
+  // Perform the update on the accommodation document
+  const updatedAccommodation = await accommodation.findByIdAndUpdate(
+    accommodation_id,
+    updates,
+    { new: true } // To return the updated document
+  );
 
   if (!updatedAccommodation) {
     throw new Error('Accommodation not found.');

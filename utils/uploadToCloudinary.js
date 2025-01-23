@@ -1,5 +1,3 @@
-
-
 import { v2 as cloudinary } from 'cloudinary';
 
 import fs from 'fs';
@@ -29,8 +27,8 @@ export const uploadImageToCloudinary = async (filePath) => {
   }
 };
 
-/*
 
+/*
 Cloudinary Storage Setup for Multer without saving to disk
 export const storage = new CloudinaryStorage({
   cloudinary: cloudinary,

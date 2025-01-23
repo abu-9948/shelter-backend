@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/user.js';
 import upload from '../middleware/upload.js';
 import { uploadImageToCloudinary } from '../utils/uploadToCloudinary.js';
+import accommodation from '../models/accommodation.js';
 import {
   addAccommodation,
   removeAccommodation,
@@ -66,18 +67,40 @@ router.delete('/remove/:accommodation_id', async (req, res) => {
 });
 
 // Route to update an accommodation
-router.put('/update/:accommodation_id', async (req, res) => {
+router.put('/update/:accommodation_id', upload.array('images', 5), async (req, res) => {
   const { accommodation_id } = req.params;
-  const updates = req.body;
+  const updates = { ...req.body }; // Spread the body into the updates object
 
   try {
+    // Retrieve the existing accommodation from the database
+    const existingAccommodation = await accommodation.findById(accommodation_id);
+    if (!existingAccommodation) {
+      return res.status(404).json({ error: 'Accommodation not found.' });
+    }
+
+    // Retrieve existing images from the document
+    const existingImages = existingAccommodation.images || [];
+
+    // Upload new files to Cloudinary and add their URLs to the `images` array
+    const newImages = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const cloudinaryUrl = await uploadImageToCloudinary(file.path); // Upload to Cloudinary
+        newImages.push(cloudinaryUrl);
+      }
+    }
+
+    // Combine old and new images
+    updates.images = [...existingImages, ...newImages];
+
     // Call the controller to update accommodation
     const updatedAccommodation = await updateAccommodation(accommodation_id, updates);
-    res.status(200).json(updatedAccommodation);  // Return the updated accommodation details
+    res.status(200).json(updatedAccommodation); // Return the updated accommodation details
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Route to get all accommodations
 router.get('/get', async (_req, res) => {

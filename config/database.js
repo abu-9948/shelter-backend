@@ -17,7 +17,7 @@ const sequelize = new Sequelize(
     pool: {
       max: 15,         // Maximum number of connections in the pool
       min: 0,         // Minimum number of connections in the pool
-      acquire: 30000, // Maximum time (in ms) to acquire a connection before throwing an error
+      acquire: 50000, // Maximum time (in ms) to acquire a connection before throwing an error
       idle: 10000     // Maximum time (in ms) a connection can be idle before being released
     }
   }
