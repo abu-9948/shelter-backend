@@ -4,6 +4,14 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
 const Review = sequelize.define('Review', {
+  review_id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+    allowNull: true,
+    unique: true,
+
+  },
   accommodation_id: {
     type: DataTypes.STRING,
     allowNull: false,

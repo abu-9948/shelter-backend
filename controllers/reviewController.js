@@ -81,8 +81,8 @@ export const getReviewsForAccommodation = async (req, res) => {
 // Update a review for an accommodation
 export const updateReviewForAccommodation = async (req, res) => {
   try {
-   
-    const accommodation_id = req.params.accommodation_id;
+   const accommodation_id = req.params.accommodation_id;
+    //const review_id = req.params.review_id;
   
     const {
       user_id,
@@ -128,5 +128,25 @@ export const updateReviewForAccommodation = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to update review' });
+  }
+};
+
+
+// Delete a review for an accommodation
+export const deleteReviewForAccommodation = async (req, res) => {
+  try {
+    const review_id = req.params.review_id;
+    const review = await Review.findByPk(review_id);
+
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    await review.destroy();
+
+    res.status(204).end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to delete review' });
   }
 };
