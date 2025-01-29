@@ -1,5 +1,5 @@
 import sequelize from '../config/database.js';
-
+import Review from './review.js';
 import { DataTypes } from 'sequelize';
 
 const Reply = sequelize.define('Reply', {
@@ -8,13 +8,12 @@ const Reply = sequelize.define('Reply', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false,
-        
     },
     review_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         references: {
-        model: 'Reviews',
-        key: 'review_id',
+            model: Review,
+            key: 'review_id',
         },
     },
     parent_reply_id: {
@@ -29,17 +28,17 @@ const Reply = sequelize.define('Reply', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
-    }, {
+}, {
     timestamps: true,
-    });
+});
 
-    // Set up self-referential association
-    Reply.hasMany(Reply, { foreignKey: 'parent_reply_id', as: 'children' });
-    Reply.belongsTo(Reply, { foreignKey: 'parent_reply_id', as: 'parent' });
+// Set up self-referential association
+Reply.hasMany(Reply, { foreignKey: 'parent_reply_id', as: 'children' });
+Reply.belongsTo(Reply, { foreignKey: 'parent_reply_id', as: 'parent' });
 
 // Sync the model
-    Reply.sync()
+Reply.sync()
     .then(() => console.log('Reply model synchronized'))
     .catch((err) => console.error('Error syncing Reply model:', err));
 
-    export default Reply;
+export default Reply;
