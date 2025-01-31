@@ -37,7 +37,7 @@ app.use('/api/messages', messageRoutes);
 sequelize.sync()
   .then(() => console.log('Postgres Database synced'))
   .catch(err => console.error('Database sync error:', err));
-
+  
 connectDB();
 
 // Create HTTP server and attach Socket.IO
