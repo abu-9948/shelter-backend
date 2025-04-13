@@ -23,7 +23,7 @@ const User = sequelize.define('User', {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   phone: {
     type: DataTypes.STRING,
@@ -35,6 +35,10 @@ const User = sequelize.define('User', {
   },
   resetTokenExpiration: {
     type: DataTypes.DATE,
+    allowNull: true,
+  },
+  picture: {
+    type: DataTypes.STRING,
     allowNull: true,
   },
 }, {

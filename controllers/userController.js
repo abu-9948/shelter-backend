@@ -1,5 +1,6 @@
 import { hash } from 'bcrypt';
 import { validationResult } from 'express-validator';
+import { OAuth2Client } from 'google-auth-library';
 import User from '../models/user.js'; 
 import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 import { compare } from 'bcrypt';
@@ -9,6 +10,69 @@ import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
 import { Op } from 'sequelize';
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const googleSignIn = async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const { email, name, picture } = ticket.getPayload();
+    const normalizedEmail = email.toLowerCase();
+
+    // Check if user exists
+    let user = await User.findOne({ where: { email: normalizedEmail } });
+
+    if (!user) {
+      // Create new user if doesn't exist
+      user = await User.create({
+        user_id: uuidv4(),
+        name,
+        picture,
+        email: normalizedEmail,
+        password: null, // Google users don't need password
+        // authProvider: 'google'
+      });
+    }
+
+    // Generate JWT token
+    const authToken = jwt.sign(
+      { id: user.user_id, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Set cookie
+    res.cookie('token', authToken, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 3600000
+    });
+
+    return res.status(200).json({
+      message: 'Google sign in successful',
+      token: authToken,
+      user: {
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture
+      }
+    });
+
+  } catch (error) {
+    console.error('Google sign in error:', error);
+    return res.status(500).json({
+      message: 'Error processing Google sign in',
+      error: error.message
+    });
+  }
+};
 
 // Register User
 export const register = async (req, res) => {
