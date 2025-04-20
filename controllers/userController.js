@@ -1,7 +1,7 @@
 import { hash } from 'bcrypt';
 import { validationResult } from 'express-validator';
 import { OAuth2Client } from 'google-auth-library';
-import User from '../models/user.js'; 
+import User from '../models/user.js';
 import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 import { compare } from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -15,12 +15,12 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export const googleSignIn = async (req, res) => {
   try {
     const { token } = req.body;
-    
+
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID
     });
-    
+
     const { email, name, picture } = ticket.getPayload();
     const normalizedEmail = email.toLowerCase();
 
@@ -49,8 +49,8 @@ export const googleSignIn = async (req, res) => {
     // Set cookie
     res.cookie('token', authToken, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      secure: process.env.NODE_ENV ? false : true,
+      sameSite: process.env.NODE_ENV ? 'Lax' : 'None',
       maxAge: 3600000
     });
 
@@ -79,10 +79,10 @@ export const register = async (req, res) => {
   // Validate input
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ 
+    return res.status(400).json({
       errors: errors.array(),
       message: 'Validation errors occurred',
-     });
+    });
   }
 
   try {
@@ -140,21 +140,21 @@ export const login = async (req, res) => {
 
   try {
     const { email, password } = req.body;
-  
+
     const normalizedEmail = email.toLowerCase();
-    
+
 
     // Find the user by email using Sequelize
     const user = await User.findOne({ where: { email: normalizedEmail } });
-  
+
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
 
     // Compare the hashed password
     const isMatch = await compare(password, user.password);
-    
-      
+
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -166,11 +166,11 @@ export const login = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.cookie('token', token, {
-      httpOnly: false,   // Prevent access via JavaScript (mitigates XSS attacks)
-      secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-      sameSite: 'Strict', // Prevent CSRF attacks
-      maxAge: 3600000, // 1 hour in milliseconds (match token expiration)
+    res.cookie('token', authToken, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV ? false : true,
+      sameSite: process.env.NODE_ENV ? 'Lax' : 'None',
+      maxAge: 3600000
     });
 
     return res.status(200).json({ message: 'Login successful', token });
@@ -185,9 +185,9 @@ export const login = async (req, res) => {
 // Logout User
 export const logout = (req, res) => {
   res.clearCookie('token', {
-    httpOnly: true, 
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'Strict' 
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict'
   });
   res.status(200).json({ message: 'Logged out successfully' });
 };
@@ -195,26 +195,26 @@ export const logout = (req, res) => {
 // Get User Profile
 export const getUserProfile = async (req, res) => {
   const { userId } = req.params;
- 
-    try {
-      const user = await User.findOne({ where: { user_id: userId } });
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      return res.status(200).json({
-        user_id: user.user_id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Server error' });
+
+  try {
+    const user = await User.findOne({ where: { user_id: userId } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
-  
+
+    return res.status(200).json({
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 //Update User Profile
 export const updateUserProfile = async (req, res) => {
   const { userId } = req.params;
@@ -285,7 +285,7 @@ export const requestPasswordReset = async (req, res) => {
     const resetTokenExpiry = new Date(Date.now() + 3600000);
 
     const hashedToken = await bcrypt.hash(resetToken, 10);
-    
+
     await user.update({
       resetToken: hashedToken,
       resetTokenExpiration: resetTokenExpiry
@@ -316,7 +316,7 @@ export const requestPasswordReset = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: 'Password reset link sent to your email',
       resetToken
     });
@@ -340,7 +340,7 @@ export const resetPassword = async (req, res) => {
         }
       }
     });
-    
+
     let matchedUser = null;
     for (const user of users) {
       const isValid = await bcrypt.compare(token, user.resetToken);
@@ -372,7 +372,7 @@ export const resetPassword = async (req, res) => {
 export const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const { userId } = req.params;
-  
+
 
   try {
     const user = await User.findOne({ where: { user_id: userId } });

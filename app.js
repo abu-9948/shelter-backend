@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(json());
 app.use(cors({
-  origin: true,
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 
@@ -44,7 +44,7 @@ connectDB();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST'],
   },
 });
@@ -55,4 +55,6 @@ socketHandler(io);
 // Start the server
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`process.env.FRONTEND_URL: ${process.env.FRONTEND_URL}`);
 });
